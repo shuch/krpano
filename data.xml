@@ -1,0 +1,824 @@
+<?xml version="1.0"?>
+<krpano clientVersion="1.3.48" version="1.19-pr7" debugmode="true">
+<!--   <include url="plugins/auto_thumbs.xml" />
+  <include url="plugins/tooltip.xml" /> -->
+  <!-- logo -->
+  <plugin name="logo"
+          url="https://fs.esf.fangdd.com/efab/FpDb0fk8LJzDAId5Pq1NT__Gv_ZF.svg"
+          keep="true"
+          enabled="true"
+          align="lefttop"
+          x="10" y="5"
+          scale.mobile="0.5"
+          />
+  <!-- <displayMode export="true"/> -->
+  <action name="startup" autorun="onstart">
+    <!-- showlog(true); -->
+    debug(scene);
+    if(startscene === null OR !scene[get(startscene)], copy(startscene,scene[0].name); );
+    loadscene(get(startscene), null, MERGE);
+    if(startactions !== null, startactions() );
+    trace('startscene', startscene);
+    addthumbs();
+  </action>
+
+  <!-- hotspot text style -->
+  <style name="hotspot_text_style"
+        css="font-family:Arial; font-size:16px; color:#fff; padding: 0 4px;"
+        vcenter="false"
+        padding="2"
+        wordwrap="true"
+        bg="true"
+        bgcolor="0x000000"
+        bgalpha="0.6"
+        bgborder="0"
+        bgroundedge="4"
+        bgshadow=""
+        txtshadow=""
+        mergedalpha="true"
+        oversampling="1.0"
+        mipmapping="false"
+        onautosized=""
+        />
+
+  <scene name="scene_5OHO2eH6lSV5spqm" pano_id="5OHO2eH6lSV5spqm" thumburl="pano/5OHO2eH6lSV5spqm/pano.tiles/thumb.jpg">
+    <preview url="pano/5OHO2eH6lSV5spqm/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/5OHO2eH6lSV5spqm/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/5OHO2eH6lSV5spqm/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/5OHO2eH6lSV5spqm/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+
+    <!-- <hotspot name="spot1" url="animatedhotspot_white.png" onloaded="do_crop_animation(64,64, 60);"  ath="141.338" atv="6.779" onclick="looktohotspot(get(name),65);" /> -->
+    <!-- <layer type="text" x="10" y="10">哈哈哈</layer>
+    <layer name="info" keep="true"
+      type="text"
+      align="top" y="15" width="70%"
+      html="krpano Stereoscopic Display&#160;Modes Example"
+      css="color:#FFFFFF; font-size:18px; text-align:center; font-weight:bold; font-style:italic;"
+      bg="false"
+      txtshadow="0 2 5 0x000000 1.0"
+      autoalpha="true"
+      onclick="set(enabled,false); tween(alpha,0);"
+      onloaded="delayedcall(5, onclick() );"
+      /> -->
+    <hotspot
+      name="spot6"
+      url="https://fs.fangdd.com/static/c2h1Y2hlbg==/hotspot.png"
+      ath="141.338" atv="6.779"
+      onclick="loadscene('scene_RLJ0oyIGJl0sDcX6', null, MERGE)" scale="0.25" zoom="true"
+      text="哈哈哈哈哈"
+      >
+      <!-- <layer name="text" url="plugins/textfield.swf" parent="hotspot[spot1]" align="center" html="Bed Room" css="font-family:Arial; font-size:16px; color:#000000;" /> -->
+    </hotspot>
+    <hotspot name="mytext"
+             type="text"
+             ath="141.338" atv="0.779" edge="center" distorted="true" renderer="webgl"
+             html="客厅"
+             style="hotspot_text_style"
+             />
+<!--     <hotspot name="spot1" style="flyoutimage"
+             url="image1.jpg"
+             zorder="1"
+             ath="141.338" atv="6.779"
+             scale="0.4"
+             rx="-22.5" ry="-26.25" rz="-50.1"
+             /> -->
+  </scene>
+
+  <!--
+    do_crop_animation(framewidth, frameheight, framerate)
+    - animation by changing the image cropping
+    - parameters:
+      - framewidth - the width from one frame in pixels
+      - frameheight - the height from one frame in pixels
+      - framerate - the animation frame rate in 'frames per second'
+    - the image can be a vertical or horizontal (or both) image-strip / sprite-sheet
+    - the action will loop automatically through all frames from left to right and top to bottom
+  -->
+  <action name="do_crop_animation" scope="local" args="framewidth, frameheight, framerate">
+    <!-- define local variables -->
+    calc(local.xframes, (caller.imagewidth /framewidth) BOR 0);
+    calc(local.frames, xframes * ((caller.imageheight / frameheight) BOR 0));
+    def(local.frame, integer, 0);
+    
+    <!-- set the first frame -->
+    calc(caller.crop, '0|0|' + framewidth + '|' + frameheight);
+    
+    <!-- do the animation -->
+    setinterval(calc('crop_anim_' + caller.name), calc(1.0 / framerate),
+      if(caller.loaded,
+        inc(frame);
+        if(frame GE frames, if(caller.onlastframe !== null, callwith(caller, onlastframe() ) ); set(frame,0); );
+        mod(xpos, frame, xframes);
+        div(ypos, frame, xframes);
+        Math.floor(ypos);
+        mul(xpos, framewidth);
+        mul(ypos, frameheight);
+        calc(caller.crop, xpos + '|' + ypos + '|' + framewidth + '|' + frameheight);
+        ,
+        <!-- stop the interval when the hotspot gets removed -->
+        clearinterval(calc('crop_anim_' + caller.name));
+      );
+    );
+  </action>
+
+  <!-- use a <style> to share the same attriubtes for all hotspots -->
+
+  <scene name="scene_RLJ0oyIGJl0sDcX6" pano_id="RLJ0oyIGJl0sDcX6" thumburl="pano/RLJ0oyIGJl0sDcX6/pano.tiles/thumb.jpg">
+    <preview url="pano/RLJ0oyIGJl0sDcX6/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/RLJ0oyIGJl0sDcX6/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/RLJ0oyIGJl0sDcX6/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/RLJ0oyIGJl0sDcX6/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+    <hotspot name="hotspot_3"/>
+    <hotspot
+      name="spot6"
+      url="https://fs.fangdd.com/static/c2h1Y2hlbg==/hotspot.png"
+      onloaded="do_crop_animation(128,128, 15);" ath="-166.895" atv="2.163"
+      onclick="loadscene('scene_5OHO2eH6lSV5spqm', null, MERGE)" scale="0.25" zoom="true"
+      />
+    <hotspot name="mytext"
+             type="text"
+             ath="-166.895" atv="-4.163" edge="center" distorted="true" renderer="webgl"
+             html="玄关"
+             style="hotspot_text_style"
+             />
+  </scene>
+  <!-- thumbs -->
+  <layer name="thumbs" keep="true" type="container" align="leftbottom" width="100%" height="110" x="0" y="0" state="opened">
+    <layer name="thumbsicon" url="https://fs.fangdd.com/static/c2h1Y2hlbg==/thumbs.png" align="rightbottom" x="-10" y="5" edge="leftbottom" scale.mobile="0.75" onclick="togglethumbs();" />
+    <layer name="thumbbar" keep="true" type="container" align="rightbottom" width="100%" height="100%" x="0" y="0" bgcolor="0x000000" bgalpha="0.3" autoalpha="true" alpha="1">
+      <layer name="scrollarea" url.flash="plugins/scrollarea.swf" url.html5="plugins/scrollarea.js" align="left" width="100%" height="110" direction="h" onloaded="" />
+    </layer>
+  </layer>
+
+  <action name="addthumbs">
+    trace('layer[scrollarea].width=', layer[scrollarea].width);
+    calc(layer[scrollarea].width, scene.count*90 + 10);
+    trace('layer[scrollarea].width=', layer[scrollarea].width);
+    for(set(i,0), i LT scene.count, inc(i),
+      calc(thumbname,'thumb_' + i);
+      addlayer(get(thumbname));
+      copy(layer[get(thumbname)].url, scene[get(i)].thumburl);
+      set(layer[get(thumbname)].keep, true);
+      set(layer[get(thumbname)].parent, 'scrollarea');
+      set(layer[get(thumbname)].align, leftbottom);
+      set(layer[get(thumbname)].width, 90);
+      set(layer[get(thumbname)].height, 90);
+      set(layer[get(thumbname)].y, 10);
+      calc(layer[get(thumbname)].x, i*100 + 10);
+      debug(layer[get(thumbname)].x);
+      set(layer[get(thumbname)].linkedscene, get(scene[get(i)].name) );
+      set(layer[get(thumbname)].onclick, loadscene(get(linkedscene), null, MERGE, BLEND(0.5)); );
+    );
+  </action>
+
+  <layer name="toggle_thumbs_button"
+    onclick="switch(layer[auto_thumbs].visible)"  
+  />
+  <action name="hidethumbs">
+    tween(layer[thumbs].x,-102,0.5,easeOutQuint);
+    tween(layer[thumbbar].alpha,0);
+    set(layer[thumbs].state,'closed');
+  </action>
+  <action name="showthumbs">
+     tween(layer[thumbs].x,0,0.5,easeOutQuint);
+     tween(layer[thumbbar].alpha,1);
+     set(layer[thumbs].state,'opened');
+  </action>
+  <action name="togglethumbs">
+    if(layer[thumbs].state == 'closed',
+      showthumbs();
+      ,
+      hidethumbs();
+    );
+  </action>
+  <!-- <scene name="scene_jxPPZT36JxjuYvlP" pano_id="jxPPZT36JxjuYvlP">
+    <preview url="pano/jxPPZT36JxjuYvlP/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/jxPPZT36JxjuYvlP/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/jxPPZT36JxjuYvlP/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/jxPPZT36JxjuYvlP/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+  </scene>
+  <scene name="scene_cOsrcVhjbzU7cKGQ" pano_id="cOsrcVhjbzU7cKGQ">
+    <preview url="pano/cOsrcVhjbzU7cKGQ/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/cOsrcVhjbzU7cKGQ/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/cOsrcVhjbzU7cKGQ/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/cOsrcVhjbzU7cKGQ/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+  </scene>
+  <scene name="scene_yg7JQv9sst6Tk7m8" pano_id="yg7JQv9sst6Tk7m8">
+    <preview url="pano/yg7JQv9sst6Tk7m8/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/yg7JQv9sst6Tk7m8/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/yg7JQv9sst6Tk7m8/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/yg7JQv9sst6Tk7m8/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+  </scene>
+  <scene name="scene_0tg0hzXqSq2dgIep" pano_id="0tg0hzXqSq2dgIep">
+    <preview url="pano/0tg0hzXqSq2dgIep/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/0tg0hzXqSq2dgIep/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/0tg0hzXqSq2dgIep/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/0tg0hzXqSq2dgIep/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+    <hotspot name="hotspot_3"/>
+  </scene>
+  <scene name="scene_uyEqDsXit3d3lOCb" pano_id="uyEqDsXit3d3lOCb">
+    <preview url="pano/uyEqDsXit3d3lOCb/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/uyEqDsXit3d3lOCb/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/uyEqDsXit3d3lOCb/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/uyEqDsXit3d3lOCb/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+    <hotspot name="hotspot_3"/>
+  </scene>
+  <scene name="scene_9wUUnluHur6DuRX7" pano_id="9wUUnluHur6DuRX7">
+    <preview url="pano/9wUUnluHur6DuRX7/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/9wUUnluHur6DuRX7/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/9wUUnluHur6DuRX7/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/9wUUnluHur6DuRX7/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+  </scene>
+  <scene name="scene_SurmAUfBbaU5ibEQ" pano_id="SurmAUfBbaU5ibEQ">
+    <preview url="pano/SurmAUfBbaU5ibEQ/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/SurmAUfBbaU5ibEQ/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/SurmAUfBbaU5ibEQ/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/SurmAUfBbaU5ibEQ/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+  </scene>
+  <scene name="scene_7cy01dFNfTQflXLs" pano_id="7cy01dFNfTQflXLs">
+    <preview url="pano/7cy01dFNfTQflXLs/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/7cy01dFNfTQflXLs/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/7cy01dFNfTQflXLs/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/7cy01dFNfTQflXLs/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+  </scene>
+  <scene name="scene_w8ImmSiYDo8NsF70" pano_id="w8ImmSiYDo8NsF70">
+    <preview url="pano/w8ImmSiYDo8NsF70/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/w8ImmSiYDo8NsF70/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/w8ImmSiYDo8NsF70/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/w8ImmSiYDo8NsF70/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+  </scene>
+  <scene name="scene_fQnX5aOW9MOXJ1XK" pano_id="fQnX5aOW9MOXJ1XK">
+    <preview url="pano/fQnX5aOW9MOXJ1XK/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/fQnX5aOW9MOXJ1XK/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/fQnX5aOW9MOXJ1XK/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/fQnX5aOW9MOXJ1XK/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+  </scene>
+  <scene name="scene_ywHedCt84Rv4iYiI" pano_id="ywHedCt84Rv4iYiI">
+    <preview url="pano/ywHedCt84Rv4iYiI/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/ywHedCt84Rv4iYiI/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/ywHedCt84Rv4iYiI/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/ywHedCt84Rv4iYiI/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+    <hotspot name="hotspot_3"/>
+    <hotspot name="hotspot_4"/>
+  </scene>
+  <scene name="scene_C3LGdirzJHnk05tH" pano_id="C3LGdirzJHnk05tH">
+    <preview url="pano/C3LGdirzJHnk05tH/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/C3LGdirzJHnk05tH/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/C3LGdirzJHnk05tH/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/C3LGdirzJHnk05tH/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+    <hotspot name="hotspot_3"/>
+    <hotspot name="hotspot_4"/>
+  </scene>
+  <scene name="scene_PpdZ7HNpyuiKzCAs" pano_id="PpdZ7HNpyuiKzCAs">
+    <preview url="pano/PpdZ7HNpyuiKzCAs/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/PpdZ7HNpyuiKzCAs/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/PpdZ7HNpyuiKzCAs/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/PpdZ7HNpyuiKzCAs/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+  </scene>
+  <scene name="scene_fRtYhTAZQD5jcpAO" pano_id="fRtYhTAZQD5jcpAO">
+    <preview url="pano/fRtYhTAZQD5jcpAO/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/fRtYhTAZQD5jcpAO/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/fRtYhTAZQD5jcpAO/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/fRtYhTAZQD5jcpAO/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+  </scene>
+  <scene name="scene_LcD6eXabl9NxaQTb" pano_id="LcD6eXabl9NxaQTb">
+    <preview url="pano/LcD6eXabl9NxaQTb/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/LcD6eXabl9NxaQTb/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/LcD6eXabl9NxaQTb/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/LcD6eXabl9NxaQTb/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+  </scene>
+  <scene name="scene_RQz9ejMvjZdiI8vb" pano_id="RQz9ejMvjZdiI8vb">
+    <preview url="pano/RQz9ejMvjZdiI8vb/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/RQz9ejMvjZdiI8vb/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/RQz9ejMvjZdiI8vb/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/RQz9ejMvjZdiI8vb/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+    <hotspot name="hotspot_1"/>
+    <hotspot name="hotspot_2"/>
+  </scene>
+  <scene name="scene_Maf1DUHhHn0fyJHf" pano_id="Maf1DUHhHn0fyJHf">
+    <preview url="pano/Maf1DUHhHn0fyJHf/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/Maf1DUHhHn0fyJHf/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/Maf1DUHhHn0fyJHf/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/Maf1DUHhHn0fyJHf/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+  </scene>
+  <scene name="scene_JU7Nxed6S1iLDJCv" pano_id="JU7Nxed6S1iLDJCv">
+    <preview url="pano/JU7Nxed6S1iLDJCv/pano.tiles/preview.jpg"/>
+    <image if="!webvr.isenabled AND device.desktop" multires="true" tilesize="512" type="CUBE">
+      <level tiledimageheight="3584" tiledimagewidth="3584">
+        <cube url="pano/JU7Nxed6S1iLDJCv/pano.tiles/mres_%s/l2/%v/l2_%s_%v_%h.jpg"/>
+      </level>
+      <level tiledimageheight="1024" tiledimagewidth="1024">
+        <cube url="pano/JU7Nxed6S1iLDJCv/pano.tiles/mres_%s/l1/%v/l1_%s_%v_%h.jpg"/>
+      </level>
+    </image>
+    <image if="webvr.isenabled OR !device.desktop">
+      <cube url="pano/JU7Nxed6S1iLDJCv/pano.tiles/mobile_%s.jpg"/>
+    </image>
+    <hotspot name="hotspot_0"/>
+  </scene> -->
+<!--   <config>
+    <info desc="720度无死角清晰体验“中海寰宇天下”两居、三居、四居样板间，足不出户身临其境!" id="Ciewhgmv05Sm9thL" pid="l5gqyew7awhxm49qf6" title="中海寰宇天下  720全景看房+VR—房天下新房"/>
+    <auth auth_name="房天下" link="https://720yun.com/u/4fb2ecaOqti" status="2" uid="4fb2ecaOqti"/>
+    <feature enable_autorotate="1" enable_comment="0" enable_gyro="0" enable_intro="1" enable_like="0" enable_littleplanet="0" enable_password="0" enable_selected="0" enable_share="0" enable_vr="1" show_auth="0" show_comment="0" show_pv="0"/>
+    <qr url="%$AVATAR_DOMAIN%/avatar/4fb2ecaOqti//d83211a32a9a47f6f26d3dd98aa5f9b2"/>
+    <logo align="1" enabled="1" is_720="0" link="http://huanyuntianxiazh.fang.com/?sflp_source=quanjing" url="media/12003e281de7e1349ed932f11da774bd.png"/>
+    <thumbs show_thumb="1" title="全景列表">
+      <category name="category0" thumb="" title="C1两居">
+        <pano name="pano_5OHO2eH6lSV5spqm" pano_id="5OHO2eH6lSV5spqm" thumb="pano/5OHO2eH6lSV5spqm/pano.tiles/thumb.jpg" title="玄关"/>
+        <pano name="pano_RLJ0oyIGJl0sDcX6" pano_id="RLJ0oyIGJl0sDcX6" thumb="pano/RLJ0oyIGJl0sDcX6/pano.tiles/thumb.jpg" title="客厅"/>
+        <pano name="pano_jxPPZT36JxjuYvlP" pano_id="jxPPZT36JxjuYvlP" thumb="pano/jxPPZT36JxjuYvlP/pano.tiles/thumb.jpg" title="厨房"/>
+        <pano name="pano_cOsrcVhjbzU7cKGQ" pano_id="cOsrcVhjbzU7cKGQ" thumb="pano/cOsrcVhjbzU7cKGQ/pano.tiles/thumb.jpg" title="主卧"/>
+        <pano name="pano_yg7JQv9sst6Tk7m8" pano_id="yg7JQv9sst6Tk7m8" thumb="pano/yg7JQv9sst6Tk7m8/pano.tiles/thumb.jpg" title="次卧"/>
+      </category>
+      <category name="category1" thumb="" title="C4三居">
+        <pano name="pano_0tg0hzXqSq2dgIep" pano_id="0tg0hzXqSq2dgIep" thumb="pano/0tg0hzXqSq2dgIep/pano.tiles/thumb.jpg" title="玄关"/>
+        <pano name="pano_uyEqDsXit3d3lOCb" pano_id="uyEqDsXit3d3lOCb" thumb="pano/uyEqDsXit3d3lOCb/pano.tiles/thumb.jpg" title="客厅"/>
+        <pano name="pano_9wUUnluHur6DuRX7" pano_id="9wUUnluHur6DuRX7" thumb="pano/9wUUnluHur6DuRX7/pano.tiles/thumb.jpg" title="厨房"/>
+        <pano name="pano_SurmAUfBbaU5ibEQ" pano_id="SurmAUfBbaU5ibEQ" thumb="pano/SurmAUfBbaU5ibEQ/pano.tiles/thumb.jpg" title="老人房"/>
+        <pano name="pano_7cy01dFNfTQflXLs" pano_id="7cy01dFNfTQflXLs" thumb="pano/7cy01dFNfTQflXLs/pano.tiles/thumb.jpg" title="卫生间"/>
+        <pano name="pano_w8ImmSiYDo8NsF70" pano_id="w8ImmSiYDo8NsF70" thumb="pano/w8ImmSiYDo8NsF70/pano.tiles/thumb.jpg" title="主卧"/>
+        <pano name="pano_fQnX5aOW9MOXJ1XK" pano_id="fQnX5aOW9MOXJ1XK" thumb="pano/fQnX5aOW9MOXJ1XK/pano.tiles/thumb.jpg" title="次卧"/>
+      </category>
+      <category name="category2" thumb="" title="C5四居">
+        <pano name="pano_ywHedCt84Rv4iYiI" pano_id="ywHedCt84Rv4iYiI" thumb="pano/ywHedCt84Rv4iYiI/pano.tiles/thumb.jpg" title="玄关"/>
+        <pano name="pano_C3LGdirzJHnk05tH" pano_id="C3LGdirzJHnk05tH" thumb="pano/C3LGdirzJHnk05tH/pano.tiles/thumb.jpg" title="客厅"/>
+        <pano name="pano_PpdZ7HNpyuiKzCAs" pano_id="PpdZ7HNpyuiKzCAs" thumb="pano/PpdZ7HNpyuiKzCAs/pano.tiles/thumb.jpg" title="厨房"/>
+        <pano name="pano_fRtYhTAZQD5jcpAO" pano_id="fRtYhTAZQD5jcpAO" thumb="pano/fRtYhTAZQD5jcpAO/pano.tiles/thumb.jpg" title="茶室"/>
+        <pano name="pano_LcD6eXabl9NxaQTb" pano_id="LcD6eXabl9NxaQTb" thumb="pano/LcD6eXabl9NxaQTb/pano.tiles/thumb.jpg" title="书房"/>
+        <pano name="pano_RQz9ejMvjZdiI8vb" pano_id="RQz9ejMvjZdiI8vb" thumb="pano/RQz9ejMvjZdiI8vb/pano.tiles/thumb.jpg" title="主卧"/>
+        <pano name="pano_Maf1DUHhHn0fyJHf" pano_id="Maf1DUHhHn0fyJHf" thumb="pano/Maf1DUHhHn0fyJHf/pano.tiles/thumb.jpg" title="卫生间"/>
+        <pano name="pano_JU7Nxed6S1iLDJCv" pano_id="JU7Nxed6S1iLDJCv" thumb="pano/JU7Nxed6S1iLDJCv/pano.tiles/thumb.jpg" title="次卧"/>
+      </category>
+    </thumbs>
+    <links>
+      <link link="http://huanyuntianxiazh.fang.com/dianping/?sflp_source=quanjing" link_type="1" name="link_0" title="点评" url="media/cfe067e7cae8b91fb8d7bf757b7c0766.png"/>
+      <link link="http://huanyuntianxiazh.fang.com/?sflp_source=quanjing" link_type="1" name="link_1" title="详情" url="media/720yun_link.png"/>
+    </links>
+    <panos>
+      <pano name="scene_5OHO2eH6lSV5spqm">
+        <info pano_id="5OHO2eH6lSV5spqm" title="玄关"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="134.20119818934813" loadscenekeepview="0" maxpixelzoom="2" vlookat="1.6222657484160197" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="141.338" atv="6.779" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="客厅" type="0" url="RLJ0oyIGJl0sDcX6"/>
+          <hotspot ath="122.83" atv="4.793" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="主卧" type="0" url="cOsrcVhjbzU7cKGQ"/>
+          <hotspot ath="105.092" atv="5.367" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd02" title="次卧" type="0" url="yg7JQv9sst6Tk7m8"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_RLJ0oyIGJl0sDcX6">
+        <info pano_id="RLJ0oyIGJl0sDcX6" title="客厅"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-67.229" atv="-1.21" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="主卧" type="0" url="cOsrcVhjbzU7cKGQ"/>
+          <hotspot ath="-146.593" atv="-1.212" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd03" title="次卧" type="0" url="yg7JQv9sst6Tk7m8"/>
+          <hotspot ath="-146.436" atv="8.762" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd03" title="厨房" type="0" url="jxPPZT36JxjuYvlP"/>
+          <hotspot ath="-166.895" atv="2.163" blend="0" image_type="1" keep_view="0" name="hotspot_3" show_txt="1" style_id="new_spotd06" title="玄关" type="0" url="5OHO2eH6lSV5spqm"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_jxPPZT36JxjuYvlP">
+        <info pano_id="jxPPZT36JxjuYvlP" title="厨房"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-161.02718841467683" atv="10.611034853883202" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd03" title="次卧" type="0" url="yg7JQv9sst6Tk7m8"/>
+          <hotspot ath="162.741" atv="5.612" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="客厅" type="0" url="RLJ0oyIGJl0sDcX6"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_cOsrcVhjbzU7cKGQ">
+        <info pano_id="cOsrcVhjbzU7cKGQ" title="主卧"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="153.448" atv="5.313" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="客厅" type="0" url="RLJ0oyIGJl0sDcX6"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_yg7JQv9sst6Tk7m8">
+        <info pano_id="yg7JQv9sst6Tk7m8" title="次卧"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-152.536" atv="2.611" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="客厅" type="0" url="RLJ0oyIGJl0sDcX6"/>
+          <hotspot ath="-162.713" atv="7.256" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="厨房" type="0" url="jxPPZT36JxjuYvlP"/>
+          <hotspot ath="-142.597" atv="3.888" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd03" title="玄关" type="0" url="5OHO2eH6lSV5spqm"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_0tg0hzXqSq2dgIep">
+        <info pano_id="0tg0hzXqSq2dgIep" title="玄关"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-14.88" atv="6.589" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd02" title="客厅" type="0" url="uyEqDsXit3d3lOCb"/>
+          <hotspot ath="-38.895" atv="4.017" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="老人房" type="0" url="SurmAUfBbaU5ibEQ"/>
+          <hotspot ath="-0.253" atv="0.902" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd02" title="主卧" type="0" url="w8ImmSiYDo8NsF70"/>
+          <hotspot ath="6.388" atv="1.487" blend="0" image_type="1" keep_view="0" name="hotspot_3" show_txt="1" style_id="new_spotd03" title="次卧" type="0" url="fQnX5aOW9MOXJ1XK"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_uyEqDsXit3d3lOCb">
+        <info pano_id="uyEqDsXit3d3lOCb" title="客厅"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-162.438" atv="0.091" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd03" title="厨房" type="0" url="jxPPZT36JxjuYvlP"/>
+          <hotspot ath="126.888" atv="3.692" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd06" title="次卧" type="0" url="fQnX5aOW9MOXJ1XK"/>
+          <hotspot ath="102.13" atv="6.29" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd02" title="主卧" type="0" url="w8ImmSiYDo8NsF70"/>
+          <hotspot ath="-100.713" atv="4.064" blend="0" image_type="1" keep_view="0" name="hotspot_3" show_txt="1" style_id="new_spotd03" title="老人房" type="0" url="SurmAUfBbaU5ibEQ"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_9wUUnluHur6DuRX7">
+        <info pano_id="9wUUnluHur6DuRX7" title="厨房"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-179.86" atv="12.633" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="客厅" type="0" url="uyEqDsXit3d3lOCb"/>
+          <hotspot ath="173.016" atv="-2.835" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="主卧" type="0" url="w8ImmSiYDo8NsF70"/>
+          <hotspot ath="173.412" atv="6.73" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd03" title="次卧" type="0" url="fQnX5aOW9MOXJ1XK"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_SurmAUfBbaU5ibEQ">
+        <info pano_id="SurmAUfBbaU5ibEQ" title="老人房"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-72.733" atv="2.278" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd02" title="客厅" type="0" url="uyEqDsXit3d3lOCb"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_7cy01dFNfTQflXLs">
+        <info pano_id="7cy01dFNfTQflXLs" title="卫生间"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-167.309" atv="-2.053" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd03" title="主卧" type="0" url="w8ImmSiYDo8NsF70"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_w8ImmSiYDo8NsF70">
+        <info pano_id="w8ImmSiYDo8NsF70" title="主卧"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="138.624" atv="5.819" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="次卧" type="0" url="fQnX5aOW9MOXJ1XK"/>
+          <hotspot ath="149.983" atv="5.937" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd03" title="客厅" type="0" url="uyEqDsXit3d3lOCb"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_fQnX5aOW9MOXJ1XK">
+        <info pano_id="fQnX5aOW9MOXJ1XK" title="次卧"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-129.482" atv="3.132" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="主卧" type="0" url="w8ImmSiYDo8NsF70"/>
+          <hotspot ath="-155.65" atv="9.173" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd06" title="客厅" type="0" url="RLJ0oyIGJl0sDcX6"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_ywHedCt84Rv4iYiI">
+        <info pano_id="ywHedCt84Rv4iYiI" title="玄关"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="120.73" atv="-0.437" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd03" title="书房" type="0" url="LcD6eXabl9NxaQTb"/>
+          <hotspot ath="-8.612" atv="2.977" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="客厅" type="0" url="C3LGdirzJHnk05tH"/>
+          <hotspot ath="-22.685" atv="0.957" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd02" title="次卧" type="0" url="JU7Nxed6S1iLDJCv"/>
+          <hotspot ath="-0.215" atv="0.023" blend="0" image_type="1" keep_view="0" name="hotspot_3" show_txt="1" style_id="new_spotd02" title="主卧" type="0" url="RQz9ejMvjZdiI8vb"/>
+          <hotspot ath="5.204" atv="0.145" blend="0" image_type="1" keep_view="0" name="hotspot_4" show_txt="1" style_id="new_spotd03" title="茶室" type="0" url="fRtYhTAZQD5jcpAO"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_C3LGdirzJHnk05tH">
+        <info pano_id="C3LGdirzJHnk05tH" title="客厅"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-137.678" atv="2.152" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd03" title="厨房" type="0" url="PpdZ7HNpyuiKzCAs"/>
+          <hotspot ath="-86.92" atv="2.508" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="书房" type="0" url="LcD6eXabl9NxaQTb"/>
+          <hotspot ath="104.798" atv="5.291" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd02" title="主卧" type="0" url="RQz9ejMvjZdiI8vb"/>
+          <hotspot ath="130.327" atv="4.007" blend="0" image_type="1" keep_view="0" name="hotspot_3" show_txt="1" style_id="new_spotd03" title="茶室" type="0" url="fRtYhTAZQD5jcpAO"/>
+          <hotspot ath="-74.351" atv="-0.682" blend="0" image_type="1" keep_view="0" name="hotspot_4" show_txt="1" style_id="new_spotd03" title="次卧" type="0" url="JU7Nxed6S1iLDJCv"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_PpdZ7HNpyuiKzCAs">
+        <info pano_id="PpdZ7HNpyuiKzCAs" title="厨房"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="149.89" atv="5.557" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd02" title="客厅" type="0" url="C3LGdirzJHnk05tH"/>
+          <hotspot ath="153.774" atv="-3.678" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd02" title="主卧" type="0" url="RQz9ejMvjZdiI8vb"/>
+          <hotspot ath="158.116" atv="6.113" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd03" title="茶室" type="0" url="fRtYhTAZQD5jcpAO"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_fRtYhTAZQD5jcpAO">
+        <info pano_id="fRtYhTAZQD5jcpAO" title="茶室"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-159.744" atv="6.977" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="主卧" type="0" url="RQz9ejMvjZdiI8vb"/>
+          <hotspot ath="173.364" atv="8.51" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd06" title="客厅" type="0" url="C3LGdirzJHnk05tH"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_LcD6eXabl9NxaQTb">
+        <info pano_id="LcD6eXabl9NxaQTb" title="书房"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="160.486" atv="6.148" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd06" title="玄关" type="0" url="ywHedCt84Rv4iYiI"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_RQz9ejMvjZdiI8vb">
+        <info pano_id="RQz9ejMvjZdiI8vb" title="主卧"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="58.88" atv="4.392" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd03" title="客厅" type="0" url="C3LGdirzJHnk05tH"/>
+          <hotspot ath="54.584" atv="1.404" blend="0" image_type="1" keep_view="0" name="hotspot_1" show_txt="1" style_id="new_spotd01" title="茶室" type="0" url="fRtYhTAZQD5jcpAO"/>
+          <hotspot ath="53.442" atv="12.902" blend="0" image_type="1" keep_view="0" name="hotspot_2" show_txt="1" style_id="new_spotd02" title="卫生间" type="0" url="Maf1DUHhHn0fyJHf"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_Maf1DUHhHn0fyJHf">
+        <info pano_id="Maf1DUHhHn0fyJHf" title="卫生间"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-125.563" atv="-0.232" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd03" title="主卧" type="0" url="RQz9ejMvjZdiI8vb"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+      <pano name="scene_JU7Nxed6S1iLDJCv">
+        <info pano_id="JU7Nxed6S1iLDJCv" title="次卧"/>
+        <view autorotatekeepview="0" fov="95" fovmax="120" fovmin="70" fovtype="MFOV" hlookat="0" loadscenekeepview="0" maxpixelzoom="2" vlookat="0" vlookatmax="90" vlookatmin="-90"/>
+        <start_image_pc/>
+        <start_image_mobile/>
+        <hotspots>
+          <hotspot ath="-94.23071681015956" atv="-0.7207974201091896" blend="0" image_type="1" keep_view="0" name="hotspot_0" show_txt="1" style_id="new_spotd02" title="客厅" type="0" url="C3LGdirzJHnk05tH"/>
+        </hotspots>
+        <embeds/>
+        <sound url="media/868fd9ee209cd1f1693ada0e837cfc93.mp3"/>
+        <sun/>
+      </pano>
+    </panos>
+  </config> -->
+</krpano>

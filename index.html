@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>vr</title>
+  <meta name="viewport" content="width=device-width, user-scalable=0, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <style type="text/css">
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    #root {
+      width: 100%;
+      height: 700px;
+    }
+  </style>
+</head>
+<body>
+  <!-- <div id="pano" style="width:100%;height:100%;"></div> -->
+  <!-- <script src="krpano.js"></script> -->
+  <div id="root"></div>
+  <script src='krpano.js'></script>
+  <!-- <script src='offline.js'></script>
+  <script src='viewer.js'></script>
+  <script src="jquery.js"></script> -->
+  <script>
+    embedpano({
+      // swf:"krpano.swf",
+      xml:"data.xml",
+      target:"root",
+      consolelog: true,
+    });
+  </script>
+</body>
+</html>
